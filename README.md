@@ -24,33 +24,48 @@ export PREFIX="$HOME/opt/cross"
 export TARGET=i686-elf
 export PATH="$PREFIX/bin:$PATH"
 
-# —- install Binutils —-
+cd $HOME
+mkdir -pv opt/cross/bin src
+
 cd $HOME/src
- 
+wget http://ftp.gnu.org/gnu/binutils/binutils-2.32.tar.xz
+wget http://ftp.gnu.org/gnu/gcc/gcc-8.2.0/gcc-8.2.0.tar.xz
+wget http://www.nasm.us/pub/nasm/releasebuilds/2.14.02/nasm-2.14.02.tar.xz
+
+# —- install Binutils —-
+tar xf binutils-2.32.tar.xz
+cd binutils-2.32/
 mkdir build-binutils
 cd build-binutils
-../binutils-x.y.z/configure --target=$TARGET --prefix="$PREFIX" --with-sysroot --disable-nls --disable-werror
+../configure --target=$TARGET --prefix="$PREFIX" --with-sysroot --disable-nls --disable-werror
 make
-make install
+sudo make install
+cd ../..
+rm -rf binutils-2.32
 
 # —- install gcc —-
-cd $HOME/src
- 
+tar xf gcc-8.2.0.tar.xz
+cd gcc-8.2.0/
 # The $PREFIX/bin dir _must_ be in the PATH. We did that above.
 which -- $TARGET-as || echo $TARGET-as is not in the PATH
- 
 mkdir build-gcc
 cd build-gcc
-../gcc-x.y.z/configure --target=$TARGET --prefix="$PREFIX" --disable-nls --enable-languages=c,c++ --without-headers
+../configure --target=$TARGET --prefix="$PREFIX" --disable-nls --enable-languages=c,c++ --without-headers
 make all-gcc
 make all-target-libgcc
-make install-gcc
-make install-target-libgcc
+sudo make install-gcc
+sudo make install-target-libgcc
+cd ../..
+rm -rf gcc-8.2.0
 
 # —- install nasm —-
-./configure --prefix=$PREFIX --target=$TARGET
+tar xf nasm-2.14.02.tar.xz
+cd nasm-2.14.02
+./configure --prefix="$PREFIX" --target=$TARGET
 make all
-make install
+sudo make install
+cd ..
+rm -rf nasm-2.14.02
 
 # —- add to PATH —-
 export PATH="$HOME/opt/cross/bin:$PATH"
@@ -68,13 +83,13 @@ linker.ld
 
 ```asm
 ; multiboot constants
-.set ALIGN,    1<<0             /* align loaded modules on page boundaries */
-.set MEMINFO,  1<<1             /* provide memory map */
-.set FLAGS,    ALIGN | MEMINFO  /* this is the Multiboot 'flag' field */
-.set MAGIC,    0x1BADB002       /* 'magic number' lets bootloader find the header */
-.set CHECKSUM, -(MAGIC + FLAGS) /* checksum of above, to prove we are multiboot */
+.set ALIGN,    1<<0             ; align loaded modules on page boundaries
+.set MEMINFO,  1<<1             ; provide memory map
+.set FLAGS,    ALIGN | MEMINFO  ; this is the Multiboot 'flag' field
+.set MAGIC,    0x1BADB002       ; 'magic number' lets bootloader find the header
+.set CHECKSUM, -(MAGIC + FLAGS) ; checksum of above, to prove we are multiboot
 
-; multiboot header 
+; multiboot header
 .section .multiboot
 .align 4
 .long MAGIC
@@ -94,7 +109,7 @@ stack_top:
 .type _start, @function
 _start:
     ; setup stack
-    mov esp, $stack_top
+    mov esp, stack_top
     ; load GDT, enable paging...
     ; enter high-level kernel
     call kernel_main
@@ -107,7 +122,7 @@ infinite_loop:
 .size _start, . - _start
 ```
 
-Assemble with: 
+Assemble with:
 ```bash
 nasm -f elf -o boot.o boot.s
 # or
