@@ -13,6 +13,8 @@ sudo apt install -y build-essential bison flex libgmp3-dev libmpc-dev libmpfr-de
 sudo apt-get install -y qemu-kvm libvirt-bin qemu
 # grub
 sudo apt-get install -y grub-pc
+# gdb
+sudo apt-get install -y gdb
 ```
 
 ## Install cross-compiler for i686-elf
@@ -53,9 +55,6 @@ make install
 # —- add to PATH —-
 export PATH="$HOME/opt/cross/bin:$PATH"
 ```
-
-## Install GRUB
-
 
 # Building the Kernel
 
@@ -198,7 +197,13 @@ qemu-system-i386 -kernel myos.bin
 
 # Debugging with KVM
 
+```bash
+# launch kvm
+kvm -m 2048 -s hda myos.iso -redir tcp:2323::23 -curses
 
+# debug kernel in gdb
+(gdb) target remote:1234
+```
 
 # Booting from a USB Stick
 
@@ -209,6 +214,6 @@ sudo dd if=myos.iso of=$USB_BLOCK_DEVICE && sync
 
 # References
 
-• [OSdev Bare Bones](https://wiki.osdev.org/Bare_Bones)
-• [GCC cross compiler](https://wiki.osdev.org/GCC_Cross-Compiler)
-• [KVM on headless ubuntu](https://www.cyberciti.biz/faq/installing-kvm-on-ubuntu-16-04-lts-server/)
+* [OSdev Bare Bones](https://wiki.osdev.org/Bare_Bones)
+* [GCC cross compiler](https://wiki.osdev.org/GCC_Cross-Compiler)
+* [KVM on headless ubuntu](https://www.cyberciti.biz/faq/installing-kvm-on-ubuntu-16-04-lts-server/)
