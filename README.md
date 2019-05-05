@@ -158,3 +158,7 @@ sudo dd if=Kagrum.iso of=$USB_BLOCK_DEVICE && sync
 * [OSdev Bare Bones](https://wiki.osdev.org/Bare_Bones)
 * [GCC cross compiler](https://wiki.osdev.org/GCC_Cross-Compiler)
 * [KVM on headless ubuntu](https://www.cyberciti.biz/faq/installing-kvm-on-ubuntu-16-04-lts-server/)
+* [ASM in out](https://stackoverflow.com/questions/3215878/what-are-in-out-instructions-in-x86-used-for)
+* [Kernel 201 tutorial](https://webhamster.ru/mytetrashare/index/mtb192/1546685729iqmbep9kjl)
+* [OSdev Interrupts](https://wiki.osdev.org/Interrupts)
+* [OSdev GDT](https://wiki.osdev.org/GDT_Tutorial)
