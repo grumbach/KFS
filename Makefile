@@ -22,14 +22,20 @@ CC = i686-elf-gcc
 
 CFLAGS = -fno-builtin -fno-exceptions -fno-stack-protector \
 	-nostdlib -nodefaultlibs \
-	-std=gnu99 -ffreestanding -O2 -Wall -Wextra
+	-std=gnu99 -ffreestanding  -Wall -Wextra
 
-LDFLAGS = -ffreestanding -O2 -nostdlib -lgcc
+LDFLAGS = -ffreestanding  -nostdlib -lgcc
 
 ############################## SRC #############################################
 
 SRC = boot/boot.s \
-	kernel/kernel.c
+	kernel/kernel.c \
+	kernel/keyboard_handler.c \
+	kernel/ports.s \
+	kernel/interrupts.s \
+	kernel/init_keyboard.c \
+	kernel/init_idt.c \
+	kernel/keyboard_loop.s #tmp
 
 COBJ = $(SRC:.c=.o)
 OBJ = $(COBJ:.s=.o)

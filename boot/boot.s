@@ -21,7 +21,7 @@ resb 16384                         ; 16 KiB
 stack_top:
 
 ; kernel start
-section text
+section .text
 
 global _start
 extern kernel_main

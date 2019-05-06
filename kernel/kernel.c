@@ -2,14 +2,16 @@
 #include <stddef.h>
 #include <stdint.h>
  
-/* Check if the compiler thinks you are targeting the wrong operating system. */
+#include "kernel.h"
+
+/* stop fools who didn’t use a cross compiler */
 #if defined(__linux__)
-#error "You are not using a cross-compiler, you will most certainly run into trouble"
+# error "You are not using a cross-compiler, you will most certainly run into trouble"
 #endif
- 
-/* This tutorial will only work for the 32-bit ix86 targets. */
+
+/* stop fools who aren’t in 32-bit ix86 */
 #if !defined(__i386__)
-#error "This tutorial needs to be compiled with a ix86-elf compiler"
+# error "This code needs to be compiled with a ix86-elf compiler"
 #endif
  
 /* Hardware text mode color constants. */
@@ -110,5 +112,33 @@ void kernel_main(void)
 	terminal_initialize();
  
 	/* Newline support is left as an exercise. */
-	terminal_writestring("Hello, kernel World!\n");
+	terminal_writestring("Hello, kernel World!");
+
+	int a = 1000000;
+	for (int i = 0; i < 20000000; i++)
+	{
+		a += 1408;
+		a /= 1132;
+		a *= 21;
+	}
+
+	idt_init();
+	kb_init();
+
+	terminal_writestring("Keyboard: ");
+	for (int i = 0; i < 40000000; i++)
+	{
+		a += 1408;
+		a /= 1132;
+		a *= 21;
+	}
+
+	terminal_writestring("Bye, kernel World!");
+	for (int i = 0; i < 80000000; i++)
+	{
+		a += 1408;
+		a /= 1132;
+		a *= 21;
+	}
+	crash_please();
 }
