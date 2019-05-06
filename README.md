@@ -162,3 +162,4 @@ sudo dd if=Kagrum.iso of=$USB_BLOCK_DEVICE && sync
 * [Kernel 201 tutorial](https://webhamster.ru/mytetrashare/index/mtb192/1546685729iqmbep9kjl)
 * [OSdev Interrupts](https://wiki.osdev.org/Interrupts)
 * [OSdev GDT](https://wiki.osdev.org/GDT_Tutorial)
+* [Keyboard](http://www.osdever.net/bkerndev/Docs/keyboard.htm)
