@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/07 00:00:38 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/05/12 16:27:32 by agrumbac         ###   ########.fr       */
+/*   Updated: 2019/05/12 17:27:14 by agrumbac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,9 @@ void kernel_main(void)
 	terminal_putstr("[LOG] Hello, kernel World!\n");
 	sleep(3);
 
-	// gdt_init();
-	// terminal_putstr("[LOG] GDT initialised!\n");
-	// sleep(3);
+	gdt_init();
+	terminal_putstr("[LOG] GDT initialised!\n");
+	sleep(3);
 
 	// idt_init();
 	// terminal_putstr("[LOG] IDT initialised!\n");

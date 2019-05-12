@@ -6,27 +6,31 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/12 12:05:46 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/05/12 16:16:40 by agrumbac         ###   ########.fr       */
+/*   Updated: 2019/05/12 17:18:32 by agrumbac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "kernel.h"
 
+# define SEG_DATA_RDWR		0x02 /* Read, Write              */
+# define SEG_DATA_RDWREXPD	0x06 /* Read, Write, expand-down */
+# define SEG_CODE_EXRD		0x0A /* Execute, Read            */
+
 struct access
 {
-	unsigned char		type:4;
-	unsigned char		desc_type:1;
-	unsigned char		ring:2;
-	unsigned char		is_present:1;
+	unsigned char		type:4;        /* which type rwx, direction */
+	unsigned char		desc_type:1;   /* 0 = system, 1 = code|data */
+	unsigned char		ring:2;        /* 0 = kernel, 3 = user      */
+	unsigned char		present:1;     /* 1 = segment is present    */
 } __attribute__((packed));
 
 struct granularity
 {
-	unsigned char		seg_len:4;
-	unsigned char		available:1;
-	unsigned char		zero:1;
-	unsigned char		op_size:1;
-	unsigned char		granularity:1;
+	unsigned char		seg_len:4;     /* bits 19:16 of limit      */
+	unsigned char		available:1;   /* Available for System (0) */
+	unsigned char		zero:1;        /* Always 0                 */
+	unsigned char		op_size:1;     /* 0 = 16bit, 1 = 32-bit    */
+	unsigned char		granularity:1; /* 0 = 1byte, 1 = 4kbyte    */
 } __attribute__((packed));
 
 struct gdt_entry
@@ -69,28 +73,34 @@ void		gdt_init(void)
 		(struct granularity){.zero = 0});
 
 	/* Kernel Code  */
-	gdt_set_gate(1, 0, 0xffffffff, (struct access){.ring = 0}, \
-		(struct granularity){.granularity = 1});
+	gdt_set_gate(1, 0, 0xffffffff, \
+		(struct access){.present = 1, .desc_type = 1, .type = SEG_CODE_EXRD}, \
+		(struct granularity){.op_size = 1, .granularity = 1});
 
 	/* Kernel Data  */
-	gdt_set_gate(2, 0, 0xffffffff, (struct access){.ring = 0}, \
-		(struct granularity){.granularity = 1});
+	gdt_set_gate(2, 0, 0xffffffff, \
+		(struct access){.present = 1, .desc_type = 1, .type = SEG_DATA_RDWR}, \
+		(struct granularity){.op_size = 1, .granularity = 1});
 
 	/* Kernel stack */
-	gdt_set_gate(3, 0, 0xffffffff, (struct access){.ring = 0}, \
-		(struct granularity){.granularity = 1});
+	gdt_set_gate(3, 0, 0xffffffff, \
+		(struct access){.present = 1, .desc_type = 1, .type = SEG_DATA_RDWREXPD}, \
+		(struct granularity){.op_size = 1, .granularity = 1});
 
 	/* User code    */
-	gdt_set_gate(4, 0, 0xffffffff, (struct access){.ring = 3}, \
-		(struct granularity){.granularity = 1});
+	gdt_set_gate(4, 0, 0xffffffff, \
+		(struct access){.present = 1, .ring = 3, .desc_type = 1, .type = SEG_CODE_EXRD}, \
+		(struct granularity){.op_size = 1, .granularity = 1});
 
 	/* User data    */
-	gdt_set_gate(5, 0, 0xffffffff, (struct access){.ring = 3}, \
-		(struct granularity){.granularity = 1});
+	gdt_set_gate(5, 0, 0xffffffff, \
+		(struct access){.present = 1, .ring = 3, .desc_type = 1, .type = SEG_DATA_RDWR}, \
+		(struct granularity){.op_size = 1, .granularity = 1});
 
 	/* User stack   */
-	gdt_set_gate(6, 0, 0xffffffff, (struct access){.ring = 3}, \
-		(struct granularity){.granularity = 1});
+	gdt_set_gate(6, 0, 0xffffffff, \
+		(struct access){.present = 1, .ring = 3, .desc_type = 1, .type = SEG_DATA_RDWREXPD}, \
+		(struct granularity){.op_size = 1, .granularity = 1});
 
 	gdtp.limit = (sizeof(gdt)) - 1;
 	gdtp.base = (unsigned int)&gdt;
