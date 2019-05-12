@@ -1,34 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   kernel.c                                           :+:      :+:    :+:   */
+/*   kernel_utils.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/05/07 00:00:38 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/05/12 16:27:32 by agrumbac         ###   ########.fr       */
+/*   Created: 2019/05/12 10:15:25 by agrumbac          #+#    #+#             */
+/*   Updated: 2019/05/12 16:27:47 by agrumbac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "kernel.h"
 
-void kernel_main(void)
+void		sleep(size_t time)
 {
-	terminal_init();
-	terminal_putstr("[LOG] Hello, kernel World!\n");
-	sleep(3);
+	int dreams = 1000000;
 
-	// gdt_init();
-	// terminal_putstr("[LOG] GDT initialised!\n");
-	// sleep(3);
+	time *= 20000000;
+	for (size_t i = 0; i < time; i++)
+	{
+		dreams += 1408;
+		dreams /= 1132;
+		dreams *= 21;
+	}
+}
 
-	// idt_init();
-	// terminal_putstr("[LOG] IDT initialised!\n");
-	// sleep(3);
+size_t		strlen(const char *str)
+{
+	size_t len = 0;
 
-	keyboard_init();
-
-	sleep(10);
-
-	crash_please();
+	while (str[len])
+		len++;
+	return len;
 }

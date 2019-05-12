@@ -6,7 +6,7 @@
 #    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/11/04 17:08:23 by agrumbac          #+#    #+#              #
-#    Updated: 2018/12/17 02:39:54 by agrumbac         ###   ########.fr        #
+#    Updated: 2019/05/12 16:20:51 by agrumbac         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,22 +20,27 @@ ASFLAGS = -f elf
 
 CC = i686-elf-gcc
 
+CPPFLAGS = -Iincludes/
+
 CFLAGS = -fno-builtin -fno-exceptions -fno-stack-protector \
 	-nostdlib -nodefaultlibs \
-	-std=gnu99 -ffreestanding  -Wall -Wextra
+	-std=gnu99 -ffreestanding  -Wall -Wextra -Ilibft/includes
 
-LDFLAGS = -ffreestanding  -nostdlib -lgcc
+LDFLAGS = -ffreestanding  -nostdlib -lgcc -Llibft -lft
+
+LIB = libft/libft.a
 
 ############################## SRC #############################################
 
 SRC = boot/boot.s \
+	kernel/gdt.c \
+	kernel/hardware_interface.s \
+	kernel/idt.c \
+	kernel/interrupts.s \
+	kernel/kernel_utils.c \
 	kernel/kernel.c \
 	kernel/keyboard_handler.c \
-	kernel/ports.s \
-	kernel/interrupts.s \
-	kernel/init_keyboard.c \
-	kernel/init_idt.c \
-	kernel/keyboard_loop.s #tmp
+	kernel/terminal.c
 
 COBJ = $(SRC:.c=.o)
 OBJ = $(COBJ:.s=.o)
@@ -62,9 +67,12 @@ X = "\033[0m"
 
 ############################## BUILD ###########################################
 
-all: dragon ${NAME}
+all: art ${NAME}
 
-${NAME}: ${OBJ}
+libft/%.a:
+	make -C libft
+
+${NAME}: ${LIB} ${OBJ}
 	i686-elf-gcc -T linker.ld ${LDFLAGS} -o ${NAME} ${OBJ}
 
 ############################## MORE ############################################
@@ -72,7 +80,7 @@ ${NAME}: ${OBJ}
 check:
 	@grub-file --is-x86-multiboot ${NAME} && echo ${B}[${NAME}] ${G}Multiboot OK!${X} || echo ${B}[${NAME}] ${R}NOT Multiboot${X}
 
-iso: unicorn ${NAME}
+iso: art ${NAME}
 	$(shell printf 'menuentry "${NAME}" {\n\
 	\tmultiboot /boot/${NAME}\n\
 	}\n' > grub.cfg)
@@ -85,6 +93,7 @@ run: ${NAME}
 	qemu-system-i386 -kernel Kagrum -curses
 
 clean:
+	make -C libft clean
 	@echo ${R}Cleaning...${X}
 	/bin/rm -f ${OBJ}
 	/bin/rm -rf isodir
@@ -92,6 +101,7 @@ clean:
 	/bin/rm -f ${NAME}.iso
 
 fclean: clean
+	make -C libft fclean
 	@echo ${R}Cleaning"  "[${NAME}]...${X}
 	/bin/rm -f ${NAME}
 
@@ -101,67 +111,7 @@ re:
 
 ############################## ART #############################################
 
-unicorn:
-	@echo "                              ,|"
-	@echo "                             //|                              ,|"
-	@echo "                           //,/                             -~ |"
-	@echo "                         // / |                         _-~   /  ,"
-	@echo "                       /'/ / /                       _-~   _/_-~ |"
-	@echo "                      ( ( / /'                   _ -~     _-~ ,/'"
-	@echo "                       \\~\\/'/|             __--~~__--\\ _-~  _/,"
-	@echo "               "${BB}","${BC}","${BG}")"${BY}")"${BR}")"${BM}")"${BB}")"${BC}")"${BG}")"${BY}";"${BR}", "${X}"\\/~-_     __--~~  --~~  __/~  _-~ /"
-	@echo "            __"${BB}")"${BC}")"${BG}")"${BY}")"${BR}")"${BM}")"${BB}")"${BC}")"${BG}")"${BY}")"${BR}")"${BM}")"${BB}")"${BC}")"${BG}";"${BW}",>/\\   /        __--~~  \\-~~ _-~"
-	@echo "           "${BW}"-\\\\"${BB}"("${BC}"("${BG}"("${BY}"("${BR}"("${BM}" "${BB}"'"${BC}"'"${BG}"'"${BY}"'"${BR}"("${BM}"("${BB}"("${BC}"("${BG}"("${BY}"("${BR}"("${BM}"( "${BW}">~\\/     --~~   __--~' _-~ ~|"
-	@echo "  "${BW}""${BM}"-"${BW}"-"${BM}"="${BW}"=/"${BM}"/"${BW}"/"${BM}"/"${BW}"/"${BM}"/"${BB}"("${BC}"("${BG}""${BY}"'"${BR}"'  "${BW}".     "${BB}"\`"${BC}")"${BG}")"${BY}")"${BR}")"${BM}")"${BB}")"${BC}", "${BW}"/     ___---~~  ~~\\~~__--~"
-	@echo "          "${BB}")"${BG}")"${BY}"| "${BW}"(@    ;-.    "${BR}"("${BM}"("${BB}"("${BC}"("${BG}"("${BW}"/           __--~~~'~~/"
-	@echo "          "${BG}"( "${BW}"\`|    /  )      "${BB}")"${BC}")"${BG}")"${BW}"/      ~~~~~__\\__---~~/ "${BM}","${BB}"("${BC}"("${BG}"("${BY}"("${BR}"("${BB}"("${BC}"("
-	@echo "             "${BW}"|   |   |       "${BG}"("${BW}"/      ---~~~/__-----~~\\\\"${BM}")"${BB}")"${BC}")"${BG}")"${BY}")"${BR}")"${BM}")"${BB}")"${BC}")"${BG}")"${BY}")"
-	@echo "             "${BW}"o_);   ;        /      ----~~/           \\\\"${BC}"("${BG}"("${BY}"("${BR}"("${BM}"("${BB}"("${BC}"("${BG}"("${BY}"("${BR}"("${BM}"("
-	@echo "                   "${BW}";        (      ---~~/         \`:::|     "${BC}")"${BG}")"${BY}")"${BR}")"${BM}")"${BB}")"${BC}";"${BG}","${BY}"."
-	@echo "                  "${BW}"|   _      \`----~~~~'      /      \`:|      "${BY}"("${BR}"("${BM}"("${BB}"("${BC}"("${BG}"("${BY}"("${BR}"("${BM}"("${BB}"("
-	@echo "            "${BW}"______/\\/~    |                 /        /         "${BB}")"${BC}")"${BG}")"${BY}")"${BR}")"${BM}")"${BB}")"${BC}")"${BG}")"
-	@echo "          "${BW}"/~;;.____/;;'  /          ___----(   \`;;;/                "${BB}")"${BC}")"${BG}")"${BY}")"
-	@echo "         "${BW}"/ //  _;______;'------~~~~~    |;;/\\    /                    "${BY}")"${BR}")"
-	@echo "        "${BW}"//  | |                        /  |  \\;;,\\"
-	@echo "       (<_  | ;                      /',/-----'  _>"
-	@echo "        \\_| ||_                     //~;~~~~~~~~~"
-	@echo "            \`\\_|                   (,~~"
-	@echo "                                    \\~\\"
-	@echo "                                     ~~"
-	@echo ""${X}
+art:
+	@echo ${BG}"ASCIIART"${X}
 
-dragon:
-	@echo ""
-	@echo ""${X}${BG}
-	@echo "	                         "${BB}"     _"${BG}   "K"${R}"A"${BY}"G"${BG}"R"${BY}"U"${BR}"M"${BG}
-	@echo "	                          "${BB}" "${BW}"=="${BB}"(W"${BW}"{==========-   "${BG}"   /="${BW}"==-"
-	@echo "	                           "${BB}"  ||  (.--.)        "${BG}" /="${BW}"==-"${BG}"_---~~~~~~~----__"
-	@echo "	                            "${BB}" | \\_,|"${WR}"**"${W}${BB}"|,__   "${BG}"   |="${BW}"==-"${BG}"~___            _,_'"${BW}"'>"
-	@echo "	                -=="${BG}"\\\\\\\\      "${BB}"  \`\\ ' \`--'   ),  "${BG}"  \`//~\\\\\\\\   ~~~~\`--._.--"${BW}">"${BG}""
-	@echo "	            ______"${BW}"-=="${BG}"|       "${BB}" /\`\\_. .__/\\ \\   "${BG}" | |  \\\\\\\\          _-~\`"
-	@echo "	      __--~~~  ,-/"${BW}"-=="${BG}"\\\\\\\\    "${BB}"  (   | .  "${BW}"|~~~~|   "${BG}"| |   \`\\       ,'"
-	@echo "	   _-~       /'    |  \\\\\\\\   "${BB}"  )__/==0==-"${BW}"\\\\42/ "${BG}"  / /      \\     /"
-	@echo "	 .'        /       |   \\\\\\\\    "${BB}"  /~\\___/~~"${BW}"\\/ "${BG}" /' /        \\   /"
-	@echo "	/  ____  /         |    \\\`\\.__/-~~   \\  |_/'  /          \\/'"
-	@echo "	"${BW}"V"${BG}"-'~   "${BW}"v"${BG}"~~~~---__  |     ~-/~         ( )   /'        _--"${BW}"v"${BG}"\`"
-	@echo "	                 \\_|      /        _) | ;  ),   __--~~"
-	@echo "	                   '~~--_/      _-~/- |/ \\   '-~ \\"
-	@echo "	                  "${BW}"{\\\\"${BG}"__~~"${BW}"_/}"${BG}"    / \\\\\\\\_>-|)<__\\      \\"
-	@echo "	                  /'   "${BW}"(_/"${BG}"  _-~  | |__>--<__|      |"
-	@echo "	                 |   _/"${BR}"-"${BG}"))-~     | |__>--<__|      |"
-	@echo "	                 / /~ ,_/       / /__>---<__/      |"
-	@echo "	                o-o _//        /-~_>---<__-~      /"
-	@echo "	                (^(~          /~_>---<__-      _-~"
-	@echo "	               "${WR}","${WY}"/"${WR}"|"${W}"           /__>--<__/     _-~"
-	@echo "	            "${WR}",//"${WY}"("${WR}"'("${W}"          |__>--<__|     /                  .--_"
-	@echo "	           "${WR}"( "${WY}"( '"${WR}"))"${W}"          |__>--<__|    |                 /' _-_~\\"
-	@echo "	          "${WR}"\`-))"${WY}" )"${WR}") ("${W}"         |__>--<__|    |               /'  /   ~\\\`\\"
-	@echo "	       "${WR}",/,'"${WY}"//"${WR}"( ("${W}"             \\__>--<__\\    \\            /'  //      ||"
-	@echo "	  "${WR}"(( ,( ( "${WY}"((, "${WR}"))"${W}"              ~-__>--<_~-_  ~--__---~'/'/  /'       "${BW}"VV"${BG}
-	@echo "	 "${WR}"\\ \`~/  "${WY}")\` )"${WR}" ,/|"${W}"                 ~-_~>--<_/-__      __-~ _/"
-	@echo "	 "${WR}"._-~//( "${WY}")/ "${WR}")) \`"${W}"                    ~~-'_/_/ /~~~~~__--~"
-	@echo "	  "${WR}" '"${WY}"( ')"${WR}"/ ,)("${W}"                              ~~~~~~~~"
-	@echo "	 "${WR}"   ) '( (/"${W}
-	@echo ""${X}
-
-.PHONY: all clean fclean re iso check dragon unicorn
+.PHONY: all clean fclean re iso check art
