@@ -102,7 +102,7 @@ void		gdt_init(void)
 		(struct access){.present = 1, .ring = 3, .desc_type = 1, .type = SEG_DATA_RDWREXPD}, \
 		(struct granularity){.op_size = 1, .granularity = 1});
 
-	gdtp.limit = sizeof(gdt) - (1 * sizeof(struct gdt_entry));
+	gdtp.limit = (sizeof(gdt)) - 1;
 	gdtp.base = (unsigned int)&gdt;
 
 	gdt_flush(gdtp);
