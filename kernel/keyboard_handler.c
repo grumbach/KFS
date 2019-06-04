@@ -6,16 +6,12 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/06 23:57:13 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/05/12 16:26:46 by agrumbac         ###   ########.fr       */
+/*   Updated: 2019/06/05 00:35:57 by agrumbac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "kernel.h"
-
-#define KEYBOARD_DATA_PORT	0x60
-#define KEYBOARD_STATUS_PORT 	0x64
-
-#define KEYCODE_RELEASE		0x80 /* shift, alt, or control keys... */
+#include "keyboard.h"
+#include "kernel.h"   /* TMP: for terminal_putchar */
 
 static const unsigned char	keyboard_map[128] =
 {
@@ -77,7 +73,7 @@ static const unsigned char	shift_map[] =
 #define STATUS_NUMLOCK		(1 << 4) /* keycode: 70    */
 #define STATUS_SCROLLLOCK	(1 << 5) /* keycode: 71    */
 
-static const uint8_t		keystatus_map[128] =
+static const u8			keystatus_map[128] =
 {
 	[57] = STATUS_ALT,
 	[30] = STATUS_CONTROL,
@@ -88,12 +84,12 @@ static const uint8_t		keystatus_map[128] =
 	[71] = STATUS_SCROLLLOCK
 };
 
-static uint8_t			keystatus;
+static u8			keystatus;
 
-static void	set_keystatus(const uint8_t keycode)
+static void	set_keystatus(const u8 keycode)
 {
-	const uint8_t	masked_keycode = keycode & ~KEYCODE_RELEASE;
-	const uint8_t	status_key     = keystatus_map[masked_keycode];
+	const u8	masked_keycode = keycode & ~KEYCODE_RELEASE;
+	const u8	status_key     = keystatus_map[masked_keycode];
 
 	if (keycode & KEYCODE_RELEASE)
 		keystatus &= ~status_key;
@@ -103,14 +99,13 @@ static void	set_keystatus(const uint8_t keycode)
 
 void		keyboard_handler(void)
 {
-	/* write EOI */
-	write_port(0x20, 0x20);
+	write_port(PIC_BASE_PORT, PIC_EOI); /* useless without idt */
 
-	const uint8_t	status = read_port(KEYBOARD_STATUS_PORT);
+	const u8	status = read_port(KEYBOARD_STATUS_PORT);
 
 	if (status & 0x01)
 	{
-		const uint8_t	keycode = read_port(KEYBOARD_DATA_PORT);
+		const u8	keycode = read_port(KEYBOARD_DATA_PORT);
 		char		key;
 
 		set_keystatus(keycode);
@@ -128,7 +123,6 @@ void		keyboard_handler(void)
 
 void		keyboard_init(void)
 {
-	/* TODO use idt !!! */
-	for (size_t i = 0; i < 42; i++)
+	for (;;)
 		keyboard_handler();
 }

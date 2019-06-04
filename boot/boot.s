@@ -34,7 +34,3 @@ _start:
 infinite_loop:
     hlt                            ; halt forever
     jmp infinite_loop
-
-; set _start size for debug
-;size _start, . - _start           ; TODO nasm syntax?
-

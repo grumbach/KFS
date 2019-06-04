@@ -1,35 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   kernel_utils.c                                     :+:      :+:    :+:   */
+/*   keyboard.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/05/12 10:15:25 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/05/12 16:27:47 by agrumbac         ###   ########.fr       */
+/*   Created: 2019/06/05 00:29:20 by agrumbac          #+#    #+#             */
+/*   Updated: 2019/06/05 00:33:22 by agrumbac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "kernel.h"
+#ifndef KEYBOARD_H
+# define KEYBOARD_H
 
-void		sleep(size_t time)
-{
-	int dreams = 1000000;
+# include "kfs_stdint.h"
 
-	time *= 20000000;
-	for (size_t i = 0; i < time; i++)
-	{
-		dreams += 1408;
-		dreams /= 1132;
-		dreams *= 21;
-	}
-}
+# define PIC_BASE_PORT		0x20
+# define PIC_EOI		0x20        /* End Of Interrupt               */
 
-size_t		strlen(const char *str)
-{
-	size_t len = 0;
+# define KEYBOARD_DATA_PORT	0x60
+# define KEYBOARD_STATUS_PORT 	0x64
 
-	while (str[len])
-		len++;
-	return len;
-}
+# define KEYCODE_RELEASE	0x80        /* shift, alt, or control keys... */
+
+u16		read_port(u16 port);
+void		write_port(u16 port, u16 cmd);
+
+#endif

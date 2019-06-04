@@ -6,7 +6,7 @@
 #    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/11/04 17:08:23 by agrumbac          #+#    #+#              #
-#    Updated: 2019/05/12 16:20:51 by agrumbac         ###   ########.fr        #
+#    Updated: 2019/06/05 00:21:56 by agrumbac         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,20 +26,17 @@ CFLAGS = -fno-builtin -fno-exceptions -fno-stack-protector \
 	-nostdlib -nodefaultlibs \
 	-std=gnu99 -ffreestanding  -Wall -Wextra -Ilibft/includes
 
-LDFLAGS = -ffreestanding  -nostdlib -lgcc -Llibft -lft
-
-LIB = libft/libft.a
+LDFLAGS = -ffreestanding -nostdlib -lgcc
 
 ############################## SRC #############################################
 
 SRC = boot/boot.s \
+	kernel/gdt_flush.s \
 	kernel/gdt.c \
-	kernel/hardware_interface.s \
-	kernel/idt.c \
-	kernel/interrupts.s \
-	kernel/kernel_utils.c \
 	kernel/kernel.c \
 	kernel/keyboard_handler.c \
+	kernel/keyboard.s \
+	kernel/kfs_utils.c \
 	kernel/terminal.c
 
 COBJ = $(SRC:.c=.o)
@@ -91,6 +88,9 @@ iso: art ${NAME}
 
 run: ${NAME}
 	qemu-system-i386 -kernel Kagrum -curses
+
+debug: ${NAME}
+	qemu-system-i386 -kernel Kagrum -curses -s -S
 
 clean:
 	make -C libft clean

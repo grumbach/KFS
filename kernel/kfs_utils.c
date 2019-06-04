@@ -1,42 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   kernel.h                                           :+:      :+:    :+:   */
+/*   kfs_utils.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/05/12 16:03:17 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/06/05 00:28:43 by agrumbac         ###   ########.fr       */
+/*   Created: 2019/05/12 10:15:25 by agrumbac          #+#    #+#             */
+/*   Updated: 2019/06/05 00:28:10 by agrumbac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef KERNEL_H
-# define KERNEL_H
+#include <stddef.h>
 
-# include <stdbool.h>
-# include <stddef.h>
-# include <stdint.h>
+size_t	strlen(const char *str)
+{
+	size_t len = 0;
 
-/*
-** kernel
-*/
-
-void		gdt_init(void);
-void		keyboard_init(void);
-
-/*
-** terminal
-*/
-
-void		terminal_init(void);
-void		terminal_putchar(unsigned char c);
-void		terminal_putstr(char *str);
-
-/*
-** utils
-*/
-
-void		sleep(size_t time);
-size_t		strlen(const char *str);
-
-#endif
+	while (str[len])
+	len++;
+	return len;
+}
