@@ -12,19 +12,23 @@
 
 ############################## VAR #############################################
 
+ifeq ($(shell uname -s), Darwin)
+	CC = i386-elf-gcc
+	GRUB = i386-elf-grub
+else
+	CC = i686-elf-gcc
+	GRUB = grub
+endif
+
 NAME = Kagrum
 
 AS = nasm
 
 ASFLAGS = -f elf
 
-CC = i686-elf-gcc
-
-CPPFLAGS = -Iincludes/
-
 CFLAGS = -fno-builtin -fno-exceptions -fno-stack-protector \
 	-nostdlib -nodefaultlibs \
-	-std=gnu99 -ffreestanding  -Wall -Wextra -Ilibft/includes
+	-std=gnu99 -ffreestanding  -Wall -Wextra -Iincludes
 
 LDFLAGS = -ffreestanding -nostdlib -lgcc
 
@@ -66,16 +70,13 @@ X = "\033[0m"
 
 all: art ${NAME}
 
-libft/%.a:
-	make -C libft
-
 ${NAME}: ${LIB} ${OBJ}
-	i686-elf-gcc -T linker.ld ${LDFLAGS} -o ${NAME} ${OBJ}
+	$(CC) -T linker.ld ${LDFLAGS} -o ${NAME} ${OBJ}
 
 ############################## MORE ############################################
 
 check:
-	@grub-file --is-x86-multiboot ${NAME} && echo ${B}[${NAME}] ${G}Multiboot OK!${X} || echo ${B}[${NAME}] ${R}NOT Multiboot${X}
+	@$(GRUB)-file --is-x86-multiboot ${NAME} && echo ${B}[${NAME}] ${G}Multiboot OK!${X} || echo ${B}[${NAME}] ${R}NOT Multiboot${X}
 
 iso: art ${NAME}
 	$(shell printf 'menuentry "${NAME}" {\n\
@@ -84,7 +85,7 @@ iso: art ${NAME}
 	/bin/mkdir -p isodir/boot/grub
 	/bin/cp Kagrum isodir/boot/Kagrum
 	/bin/cp grub.cfg isodir/boot/grub/grub.cfg
-	grub-mkrescue -o ${NAME}.iso isodir
+	$(GRUB)-mkrescue -o ${NAME}.iso isodir
 
 run: ${NAME}
 	qemu-system-i386 -kernel Kagrum -curses
@@ -93,7 +94,6 @@ debug: ${NAME}
 	qemu-system-i386 -kernel Kagrum -curses -s -S
 
 clean:
-	make -C libft clean
 	@echo ${R}Cleaning...${X}
 	/bin/rm -f ${OBJ}
 	/bin/rm -rf isodir
@@ -101,7 +101,6 @@ clean:
 	/bin/rm -f ${NAME}.iso
 
 fclean: clean
-	make -C libft fclean
 	@echo ${R}Cleaning"  "[${NAME}]...${X}
 	/bin/rm -f ${NAME}
 
