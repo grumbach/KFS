@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "kfs_stdint.h"
+#include "libkfs.h"
 #include "gdt.h"
 
 struct gdt_entry	gdt_entries[] =

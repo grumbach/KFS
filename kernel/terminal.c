@@ -6,35 +6,16 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/03 19:49:48 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/05/12 16:24:32 by agrumbac         ###   ########.fr       */
+/*   Updated: 2019/06/06 00:47:53 by agrumbac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "kernel.h"
+#include "terminal.h"
 
 #define VGA_BUFFER		0xb8000
 #define VGA_WIDTH		80
 #define VGA_HEIGHT		25
-
-enum vga_color
-{
-	VGA_COLOR_BLACK = 0,
-	VGA_COLOR_BLUE = 1,
-	VGA_COLOR_GREEN = 2,
-	VGA_COLOR_CYAN = 3,
-	VGA_COLOR_RED = 4,
-	VGA_COLOR_MAGENTA = 5,
-	VGA_COLOR_BROWN = 6,
-	VGA_COLOR_LIGHT_GREY = 7,
-	VGA_COLOR_DARK_GREY = 8,
-	VGA_COLOR_LIGHT_BLUE = 9,
-	VGA_COLOR_LIGHT_GREEN = 10,
-	VGA_COLOR_LIGHT_CYAN = 11,
-	VGA_COLOR_LIGHT_RED = 12,
-	VGA_COLOR_LIGHT_MAGENTA = 13,
-	VGA_COLOR_LIGHT_BROWN = 14,
-	VGA_COLOR_WHITE = 15,
-};
 
 static struct
 {
@@ -80,7 +61,7 @@ void			terminal_putchar(unsigned char c)
 		(*term.buffer)[term.row][term.column++] = vga_entry(c, term.color);
 	}
 
-	if (term.column == VGA_HEIGHT)
+	if (term.column == VGA_WIDTH)
 	{
 		term.column = 0;
 		term.row++;
@@ -88,11 +69,19 @@ void			terminal_putchar(unsigned char c)
 	if (term.row == VGA_HEIGHT) term.row = 0;
 }
 
-void			terminal_putstr(char *str)
+void			terminal_putstr(const char *str)
 {
 	while (*str)
 	{
 		terminal_putchar(*str);
 		str++;
+	}
+}
+
+void			terminal_write(const char *mem, size_t size)
+{
+	for (size_t i = 0; i < size; i++)
+	{
+		terminal_putchar(mem[i]);
 	}
 }

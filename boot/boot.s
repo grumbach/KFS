@@ -28,7 +28,6 @@ extern kernel_main
 
 _start:
     mov esp, stack_top             ; setup stack
-                                   ; load GDT, enable paging...
     call kernel_main               ; enter high-level kernel
     cli                            ; disable interrupts
 infinite_loop:

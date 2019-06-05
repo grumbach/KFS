@@ -13,7 +13,7 @@
 #ifndef GDT_H
 # define GDT_H
 
-# include "kfs_stdint.h"
+# include "libkfs.h"
 
 # define GDT_ACCESS_RW		0x02
 # define GDT_ACCESS_DC		0x04

@@ -13,7 +13,7 @@
 #ifndef KEYBOARD_H
 # define KEYBOARD_H
 
-# include "kfs_stdint.h"
+# include "libkfs.h"
 
 # define PIC_BASE_PORT		0x20
 # define PIC_EOI		0x20        /* End Of Interrupt               */

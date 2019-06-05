@@ -6,7 +6,7 @@
 #    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/11/04 17:08:23 by agrumbac          #+#    #+#              #
-#    Updated: 2019/06/05 00:21:56 by agrumbac         ###   ########.fr        #
+#    Updated: 2019/06/06 00:50:46 by agrumbac         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,13 +14,15 @@
 
 ifeq ($(shell uname -s), Darwin)
 	CC = i386-elf-gcc
+	AR = i386-elf-ar
 	GRUB = i386-elf-grub
 else
 	CC = i686-elf-gcc
+	AR = i686-elf-ar
 	GRUB = grub
 endif
 
-NAME = Kagrum
+NAME = kfs
 
 AS = nasm
 
@@ -34,17 +36,21 @@ LDFLAGS = -ffreestanding -nostdlib -lgcc
 
 ############################## SRC #############################################
 
-SRC = boot/boot.s \
-	kernel/gdt_flush.s \
-	kernel/gdt.c \
-	kernel/kernel.c \
+SRC = boot/boot.s                 \
+	kernel/gdt_flush.s        \
+	kernel/gdt.c              \
+	kernel/idt_flush.s        \
+	kernel/idt.c              \
+	kernel/isr.s              \
+	kernel/kernel.c           \
 	kernel/keyboard_handler.c \
-	kernel/keyboard.s \
-	kernel/kfs_utils.c \
+	kernel/keyboard.s         \
 	kernel/terminal.c
 
 COBJ = $(SRC:.c=.o)
 OBJ = $(COBJ:.s=.o)
+
+libkfs = libkfs/libkfs.a
 
 ############################## COLORS ##########################################
 
@@ -70,8 +76,13 @@ X = "\033[0m"
 
 all: art ${NAME}
 
-${NAME}: ${LIB} ${OBJ}
-	$(CC) -T linker.ld ${LDFLAGS} -o ${NAME} ${OBJ}
+libkfs/%:
+	make -C libkfs CFLAGS+="$(CFLAGS)" AR=$(AR) CC+=$(CC) TARGET=../$@
+
+${OBJ}: ${libkfs}
+
+${NAME}: ${libkfs} ${OBJ}
+	$(CC) -T linker.ld ${LDFLAGS} -o ${NAME} ${OBJ}  -Llibkfs -lkfs
 
 ############################## MORE ############################################
 
@@ -83,17 +94,19 @@ iso: art ${NAME}
 	\tmultiboot /boot/${NAME}\n\
 	}\n' > grub.cfg)
 	/bin/mkdir -p isodir/boot/grub
-	/bin/cp Kagrum isodir/boot/Kagrum
+	/bin/cp ${NAME} isodir/boot/${NAME}
 	/bin/cp grub.cfg isodir/boot/grub/grub.cfg
 	$(GRUB)-mkrescue -o ${NAME}.iso isodir
 
 run: ${NAME}
-	qemu-system-i386 -kernel Kagrum -curses
+	qemu-system-i386 -kernel ${NAME} -curses
 
 debug: ${NAME}
-	qemu-system-i386 -kernel Kagrum -curses -s -S
+	qemu-system-i386 -kernel ${NAME} -curses -s -S
 
 clean:
+	@echo ${R}Cleaning libkfs objs...${X}
+	make -C libkfs fclean
 	@echo ${R}Cleaning...${X}
 	/bin/rm -f ${OBJ}
 	/bin/rm -rf isodir
@@ -101,6 +114,8 @@ clean:
 	/bin/rm -f ${NAME}.iso
 
 fclean: clean
+	@echo ${R}Cleaning libkfs...${X}
+	make -C libkfs fclean
 	@echo ${R}Cleaning"  "[${NAME}]...${X}
 	/bin/rm -f ${NAME}
 
@@ -111,6 +126,21 @@ re:
 ############################## ART #############################################
 
 art:
-	@echo ${BG}"ASCIIART"${X}
+	@echo ${BB}
+	@echo "     ,--.     .--."
+	@echo "    /    \\\\"${WR}". ."${X}${BB}"/    \\"
+	@echo "   /  /\\ / \" \\ /\\  \\"
+	@echo "  / _/  {~~v~~}  \\_ \\"
+	@echo " /     {   |   }     \\"
+	@echo ";   /\\{    |    }/\\   \\"
+	@echo "| _/  {    |    }  \\_  :"
+	@echo "|     {    |    }      |  "${BG}" _  _______ ____"${BB}
+	@echo "|    /{    |    }\\     | "${BG}" | |/ /  ___/ ___| "${BB}
+	@echo "|   / {    |    } \\    | "${BG}" | ' /| |_  \___ \ "${BB}
+	@echo "|  /  {    |    }  \\   | "${BG}" | . \|  _|  ___) |"${BB}
+	@echo "|  \\  \\    |    /  /   |"${BG}"  |_|\_\_|   |____/ "${BB}
+	@echo "|   \\  \\   |   /  /    |"
+	@echo "\\    \\  \\  |  /  /     /"
+	@echo " \\   /   ~~~~~   \\    /"${X}
 
 .PHONY: all clean fclean re iso check art
