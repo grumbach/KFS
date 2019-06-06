@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/12 16:03:17 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/06/06 00:29:56 by agrumbac         ###   ########.fr       */
+/*   Updated: 2019/06/07 00:47:40 by agrumbac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,19 +18,12 @@
 # include "libkfs.h"
 
 /*
-** kernel
+** kernel init
 */
 
 void		gdt_init(void);
 void		idt_init(void);
+void		pic_init(void);
 void		terminal_init(void);
-void		keyboard_init(void);
-
-/*
-** utils
-*/
-
-void		sleep(size_t time);
-size_t		strlen(const char *str);
 
 #endif

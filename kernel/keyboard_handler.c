@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/06 23:57:13 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/06/06 00:49:45 by agrumbac         ###   ########.fr       */
+/*   Updated: 2019/06/07 00:20:54 by agrumbac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,8 +99,6 @@ static void	set_keystatus(const u8 keycode)
 
 void		keyboard_handler(void)
 {
-	write_port(PIC_BASE_PORT, PIC_EOI); /* useless without idt */
-
 	const u8	status = read_port(KEYBOARD_STATUS_PORT);
 
 	if (status & 0x01)
@@ -119,10 +117,6 @@ void		keyboard_handler(void)
 
 		terminal_putchar(key);
 	}
-}
 
-void		keyboard_init(void)
-{
-	for (;;)
-		keyboard_handler();
+	write_port(PIC_BASE_PORT, PIC_EOI);
 }

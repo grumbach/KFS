@@ -6,7 +6,7 @@
 #    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/11/04 17:08:23 by agrumbac          #+#    #+#              #
-#    Updated: 2019/06/06 00:50:46 by agrumbac         ###   ########.fr        #
+#    Updated: 2019/06/07 00:44:33 by agrumbac         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -41,10 +41,12 @@ SRC = boot/boot.s                 \
 	kernel/gdt.c              \
 	kernel/idt_flush.s        \
 	kernel/idt.c              \
+	kernel/irq.s              \
 	kernel/isr.s              \
 	kernel/kernel.c           \
 	kernel/keyboard_handler.c \
 	kernel/keyboard.s         \
+	kernel/pic.c              \
 	kernel/terminal.c
 
 COBJ = $(SRC:.c=.o)
