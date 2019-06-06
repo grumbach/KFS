@@ -6,7 +6,7 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/07 00:00:38 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/06/07 00:12:54 by agrumbac         ###   ########.fr       */
+/*   Updated: 2019/06/07 00:54:00 by agrumbac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,5 +26,6 @@ void	kernel_main(void)
 	pic_init();
 	printk("[LOG] PIC initialised!\n");
 
-	while (42);
+	while (42)
+		keyboard_handler();
 }
