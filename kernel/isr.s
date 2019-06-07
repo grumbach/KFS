@@ -64,7 +64,7 @@ _undefined:
 extern isr_fault_handler
 
 isr_common_stub:
-	pusha               ; general registers
+	pushad              ; general registers
 	push ds             ; save original selectors
 	push es
 	push fs
@@ -86,7 +86,7 @@ isr_common_stub:
 	pop fs
 	pop es
 	pop ds
-	popa
+	popad
 
 ;; IA32E Intel Volume 3A 6.13
 ;; Note that the error code is not popped when the IRET instruction is

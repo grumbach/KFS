@@ -17,8 +17,8 @@ ifeq ($(shell uname -s), Darwin)
 	AR = i386-elf-ar
 	GRUB = i386-elf-grub
 else
-	CC = i686-elf-gcc
-	AR = i686-elf-ar
+	CC = gcc
+	AR = ar
 	GRUB = grub
 endif
 
@@ -30,9 +30,9 @@ ASFLAGS = -f elf
 
 CFLAGS = -fno-builtin -fno-exceptions -fno-stack-protector \
 	-nostdlib -nodefaultlibs \
-	-std=gnu99 -ffreestanding  -Wall -Wextra -Iincludes
+	-std=gnu99 -ffreestanding  -Wall -Wextra -Iincludes -m32 -g3
 
-LDFLAGS = -ffreestanding -nostdlib -lgcc
+LDFLAGS = -ffreestanding -nostdlib -lgcc -m32
 
 ############################## SRC #############################################
 
@@ -76,15 +76,15 @@ X = "\033[0m"
 
 ############################## BUILD ###########################################
 
+.PHONY: clean all re fclean
+
 all: art ${NAME}
 
-libkfs/%:
+${libkfs}:
 	make -C libkfs CFLAGS+="$(CFLAGS)" AR=$(AR) CC+=$(CC) TARGET=../$@
 
-${OBJ}: ${libkfs}
-
 ${NAME}: ${libkfs} ${OBJ}
-	$(CC) -T linker.ld ${LDFLAGS} -o ${NAME} ${OBJ}  -Llibkfs -lkfs
+	$(CC) -T linker.ld ${LDFLAGS} -o ${NAME} ${OBJ} -Llibkfs -lkfs
 
 ############################## MORE ############################################
 
@@ -117,7 +117,7 @@ clean:
 
 fclean: clean
 	@echo ${R}Cleaning libkfs...${X}
-	make -C libkfs fclean
+	make -C libkfs TARGET=../${libkfs} fclean
 	@echo ${R}Cleaning"  "[${NAME}]...${X}
 	/bin/rm -f ${NAME}
 

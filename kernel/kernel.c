@@ -25,7 +25,8 @@ void	kernel_main(void)
 
 	pic_init();
 	printk("[LOG] PIC initialised!\n");
+	asm volatile("sti");
 
 	while (42)
-		keyboard_handler();
+		asm volatile("hlt");
 }

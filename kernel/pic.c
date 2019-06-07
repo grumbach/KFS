@@ -35,7 +35,7 @@ void	pic_init(void)
 
 	/* Initialization finished */
 	/* mask interrupts */
-	/* 0xfd is 11111100 - enables only IRQ1 (keyboard) and IRQ0 */
+	/* 0xfc is 11111100 - enables only IRQ1 (keyboard) and IRQ0 */
 	write_port(0x21 , 0xfc);
 	write_port(0xA1 , 0xff);
 }

@@ -14,16 +14,25 @@ extern keyboard_handler
 
 global _irq1
 _irq1:
+	pushad
 	call keyboard_handler
-	sti
+	popad
 	iret
 
 extern terminal_putchar
 
 global _irq0
 _irq0:
+	pushad
+
 	push DWORD 42
 	call terminal_putchar
 	add esp, 4
-	sti
+
+	mov ax, 0x20
+	mov dx, 0x20
+	out dx, ax
+
+	popad
+
 	iret

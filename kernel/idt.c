@@ -111,7 +111,7 @@ void	idt_init(void)
 	for (n = 0; n < IDT_ISR_USR_GATE; n++)
 	{
 		base_ptr = (u32)(n[isr] ? n[isr] : _undefined);
-		idt_entries[n] = (struct idt_entry)INTGATE(base_ptr, IDT_KERNEL_CS, IDT_PVL_KERNEL);
+		idt_entries[n] = (struct idt_entry)TRAPGATE(base_ptr, IDT_KERNEL_CS, IDT_PVL_KERNEL);
 	}
 
 	idt_entries[n] = (struct idt_entry)INTGATE((u32)_irq0, \

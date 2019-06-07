@@ -52,7 +52,7 @@ static const unsigned char	keyboard_map[128] =
 	0,                                                      // ... Undefined
 };
 
-static const unsigned char	shift_map[] =
+static const unsigned char	shift_map[128] =
 {
 	0,
 	0,
@@ -77,8 +77,8 @@ static const u8			keystatus_map[128] =
 {
 	[57] = STATUS_ALT,
 	[30] = STATUS_CONTROL,
-	[43] = STATUS_SHIFT,
-	[55] = STATUS_SHIFT,
+	[0x2a] = STATUS_SHIFT,
+	[0x36] = STATUS_SHIFT,
 	[59] = STATUS_CAPSLOCK,
 	[70] = STATUS_NUMLOCK,
 	[71] = STATUS_SCROLLLOCK
@@ -99,24 +99,18 @@ static void	set_keystatus(const u8 keycode)
 
 void		keyboard_handler(void)
 {
-	const u8	status = read_port(KEYBOARD_STATUS_PORT);
+	const u8	keycode = read_port(KEYBOARD_DATA_PORT);
+	char		key;
 
-	if (status & 0x01)
-	{
-		const u8	keycode = read_port(KEYBOARD_DATA_PORT);
-		char		key;
+	set_keystatus(keycode);
 
-		set_keystatus(keycode);
-
-		if (keycode >= 128) return;
-
-		if (keystatus & STATUS_SHIFT && keycode < sizeof(shift_map))
+	if (!(keycode & KEYCODE_RELEASE)) {
+		if (keystatus & STATUS_SHIFT)
 			key = shift_map[keycode];
 		else
 			key = keyboard_map[keycode];
-
-		terminal_putchar(key);
+		if (keycode)
+			terminal_putchar(key);
 	}
-
 	write_port(PIC_BASE_PORT, PIC_EOI);
 }

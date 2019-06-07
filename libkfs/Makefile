@@ -6,7 +6,7 @@ OBJ		=	$(addsuffix .o, $(basename $(SRC)))
 all: $(TARGET)
 
 $(TARGET): $(OBJ)
-	$(AR) -rcs $@ $(OBJ)
+	$(AR) --target=elf32-i386 -rcs $@ $(OBJ)
 
 %.o : %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -15,7 +15,7 @@ clean:
 	rm -rf $(OBJ)
 
 fclean: clean
-	rm -rf $(NAME)
+	rm -rf $(TARGET)
 
 re: fclean all
 
