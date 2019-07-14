@@ -6,29 +6,27 @@
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/07 00:00:38 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/05/12 17:27:14 by agrumbac         ###   ########.fr       */
+/*   Updated: 2019/06/07 00:54:00 by agrumbac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "kernel.h"
 
-void kernel_main(void)
+void	kernel_main(void)
 {
 	terminal_init();
-	terminal_putstr("[LOG] Hello, kernel World!\n");
-	sleep(3);
+	printk("[LOG] TERMINAL initialised!\n");
 
 	gdt_init();
-	terminal_putstr("[LOG] GDT initialised!\n");
-	sleep(3);
+	printk("[LOG] GDT initialised!\n");
 
-	// idt_init();
-	// terminal_putstr("[LOG] IDT initialised!\n");
-	// sleep(3);
+	idt_init();
+	printk("[LOG] IDT initialised!\n");
 
-	keyboard_init();
+	pic_init();
+	printk("[LOG] PIC initialised!\n");
+	asm volatile("sti");
 
-	sleep(10);
-
-	crash_please();
+	while (42)
+		asm volatile("hlt");
 }

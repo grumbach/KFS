@@ -6,44 +6,53 @@
 #    By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/11/04 17:08:23 by agrumbac          #+#    #+#              #
-#    Updated: 2019/05/12 16:20:51 by agrumbac         ###   ########.fr        #
+#    Updated: 2019/06/07 00:44:33 by agrumbac         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 ############################## VAR #############################################
 
-NAME = Kagrum
+ifeq ($(shell uname -s), Darwin)
+	CC = i386-elf-gcc
+	AR = i386-elf-ar
+	GRUB = i386-elf-grub
+else
+	CC = gcc
+	AR = ar
+	GRUB = grub
+endif
+
+NAME = kfs
 
 AS = nasm
 
 ASFLAGS = -f elf
 
-CC = i686-elf-gcc
-
-CPPFLAGS = -Iincludes/
-
 CFLAGS = -fno-builtin -fno-exceptions -fno-stack-protector \
 	-nostdlib -nodefaultlibs \
-	-std=gnu99 -ffreestanding  -Wall -Wextra -Ilibft/includes
+	-std=gnu99 -ffreestanding  -Wall -Wextra -Iincludes -m32 -g3
 
-LDFLAGS = -ffreestanding  -nostdlib -lgcc -Llibft -lft
-
-LIB = libft/libft.a
+LDFLAGS = -ffreestanding -nostdlib -lgcc -m32
 
 ############################## SRC #############################################
 
-SRC = boot/boot.s \
-	kernel/gdt.c \
-	kernel/hardware_interface.s \
-	kernel/idt.c \
-	kernel/interrupts.s \
-	kernel/kernel_utils.c \
-	kernel/kernel.c \
+SRC = boot/boot.s                 \
+	kernel/gdt_flush.s        \
+	kernel/gdt.c              \
+	kernel/idt_flush.s        \
+	kernel/idt.c              \
+	kernel/irq.s              \
+	kernel/isr.s              \
+	kernel/kernel.c           \
 	kernel/keyboard_handler.c \
+	kernel/keyboard.s         \
+	kernel/pic.c              \
 	kernel/terminal.c
 
 COBJ = $(SRC:.c=.o)
 OBJ = $(COBJ:.s=.o)
+
+libkfs = libkfs/libkfs.a
 
 ############################## COLORS ##########################################
 
@@ -67,33 +76,39 @@ X = "\033[0m"
 
 ############################## BUILD ###########################################
 
+.PHONY: clean all re fclean
+
 all: art ${NAME}
 
-libft/%.a:
-	make -C libft
+${libkfs}:
+	make -C libkfs CFLAGS+="$(CFLAGS)" AR=$(AR) CC+=$(CC) TARGET=../$@
 
-${NAME}: ${LIB} ${OBJ}
-	i686-elf-gcc -T linker.ld ${LDFLAGS} -o ${NAME} ${OBJ}
+${NAME}: ${libkfs} ${OBJ}
+	$(CC) -T linker.ld ${LDFLAGS} -o ${NAME} ${OBJ} -Llibkfs -lkfs
 
 ############################## MORE ############################################
 
 check:
-	@grub-file --is-x86-multiboot ${NAME} && echo ${B}[${NAME}] ${G}Multiboot OK!${X} || echo ${B}[${NAME}] ${R}NOT Multiboot${X}
+	@$(GRUB)-file --is-x86-multiboot ${NAME} && echo ${B}[${NAME}] ${G}Multiboot OK!${X} || echo ${B}[${NAME}] ${R}NOT Multiboot${X}
 
 iso: art ${NAME}
 	$(shell printf 'menuentry "${NAME}" {\n\
 	\tmultiboot /boot/${NAME}\n\
 	}\n' > grub.cfg)
 	/bin/mkdir -p isodir/boot/grub
-	/bin/cp Kagrum isodir/boot/Kagrum
+	/bin/cp ${NAME} isodir/boot/${NAME}
 	/bin/cp grub.cfg isodir/boot/grub/grub.cfg
-	grub-mkrescue -o ${NAME}.iso isodir
+	$(GRUB)-mkrescue -o ${NAME}.iso isodir
 
 run: ${NAME}
-	qemu-system-i386 -kernel Kagrum -curses
+	qemu-system-i386 -kernel ${NAME} -curses
+
+debug: ${NAME}
+	qemu-system-i386 -kernel ${NAME} -curses -s -S
 
 clean:
-	make -C libft clean
+	@echo ${R}Cleaning libkfs objs...${X}
+	make -C libkfs fclean
 	@echo ${R}Cleaning...${X}
 	/bin/rm -f ${OBJ}
 	/bin/rm -rf isodir
@@ -101,7 +116,8 @@ clean:
 	/bin/rm -f ${NAME}.iso
 
 fclean: clean
-	make -C libft fclean
+	@echo ${R}Cleaning libkfs...${X}
+	make -C libkfs TARGET=../${libkfs} fclean
 	@echo ${R}Cleaning"  "[${NAME}]...${X}
 	/bin/rm -f ${NAME}
 
@@ -112,6 +128,21 @@ re:
 ############################## ART #############################################
 
 art:
-	@echo ${BG}"ASCIIART"${X}
+	@echo ${BB}
+	@echo "     ,--.     .--."
+	@echo "    /    \\\\"${WR}". ."${X}${BB}"/    \\"
+	@echo "   /  /\\ / \" \\ /\\  \\"
+	@echo "  / _/  {~~v~~}  \\_ \\"
+	@echo " /     {   |   }     \\"
+	@echo ";   /\\{    |    }/\\   \\"
+	@echo "| _/  {    |    }  \\_  :"
+	@echo "|     {    |    }      |  "${BG}" _  _______ ____"${BB}
+	@echo "|    /{    |    }\\     | "${BG}" | |/ /  ___/ ___| "${BB}
+	@echo "|   / {    |    } \\    | "${BG}" | ' /| |_  \___ \ "${BB}
+	@echo "|  /  {    |    }  \\   | "${BG}" | . \|  _|  ___) |"${BB}
+	@echo "|  \\  \\    |    /  /   |"${BG}"  |_|\_\_|   |____/ "${BB}
+	@echo "|   \\  \\   |   /  /    |"
+	@echo "\\    \\  \\  |  /  /     /"
+	@echo " \\   /   ~~~~~   \\    /"${X}
 
 .PHONY: all clean fclean re iso check art
