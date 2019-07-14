@@ -21,20 +21,15 @@ resb 16384                         ; 16 KiB
 stack_top:
 
 ; kernel start
-section text
+section .text
 
 global _start
 extern kernel_main
 
 _start:
     mov esp, stack_top             ; setup stack
-                                   ; load GDT, enable paging...
     call kernel_main               ; enter high-level kernel
     cli                            ; disable interrupts
 infinite_loop:
     hlt                            ; halt forever
     jmp infinite_loop
-
-; set _start size for debug
-;size _start, . - _start           ; TODO nasm syntax?
-

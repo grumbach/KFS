@@ -1,32 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   kernel.c                                           :+:      :+:    :+:   */
+/*   keyboard.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/05/07 00:00:38 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/06/07 00:54:00 by agrumbac         ###   ########.fr       */
+/*   Created: 2019/06/05 00:29:20 by agrumbac          #+#    #+#             */
+/*   Updated: 2019/06/05 00:33:22 by agrumbac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "kernel.h"
+#ifndef KEYBOARD_H
+# define KEYBOARD_H
 
-void	kernel_main(void)
-{
-	terminal_init();
-	printk("[LOG] TERMINAL initialised!\n");
+# include "libkfs.h"
 
-	gdt_init();
-	printk("[LOG] GDT initialised!\n");
+# define PIC_BASE_PORT		0x20
+# define PIC_EOI		0x20        /* End Of Interrupt               */
 
-	idt_init();
-	printk("[LOG] IDT initialised!\n");
+# define KEYBOARD_DATA_PORT	0x60
+# define KEYBOARD_STATUS_PORT 	0x64
 
-	pic_init();
-	printk("[LOG] PIC initialised!\n");
-	asm volatile("sti");
+# define KEYCODE_RELEASE	0x80        /* shift, alt, or control keys... */
 
-	while (42)
-		asm volatile("hlt");
-}
+u16		read_port(u16 port);
+void		write_port(u16 port, u16 cmd);
+
+#endif

@@ -1,32 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   kernel.c                                           :+:      :+:    :+:   */
+/*   kernel.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: agrumbac <agrumbac@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/05/07 00:00:38 by agrumbac          #+#    #+#             */
-/*   Updated: 2019/06/07 00:54:00 by agrumbac         ###   ########.fr       */
+/*   Created: 2019/05/12 16:03:17 by agrumbac          #+#    #+#             */
+/*   Updated: 2019/06/07 00:47:40 by agrumbac         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "kernel.h"
+#ifndef KERNEL_H
+# define KERNEL_H
 
-void	kernel_main(void)
-{
-	terminal_init();
-	printk("[LOG] TERMINAL initialised!\n");
+# include <stdbool.h>
+# include <stdint.h>
+# include "libkfs.h"
 
-	gdt_init();
-	printk("[LOG] GDT initialised!\n");
+/*
+** kernel init
+*/
 
-	idt_init();
-	printk("[LOG] IDT initialised!\n");
+void		gdt_init(void);
+void		idt_init(void);
+void		pic_init(void);
+void		terminal_init(void);
 
-	pic_init();
-	printk("[LOG] PIC initialised!\n");
-	asm volatile("sti");
-
-	while (42)
-		asm volatile("hlt");
-}
+#endif
