@@ -88,10 +88,11 @@ struct gdt_entry	gdt_entries[] =
 struct gdt_ptr		gdtp =
 {
 	.limit = sizeof(gdt_entries) - 1,
-	.base  = (u32)gdt_entries
+	.base  = (u32)0x800
 };
 
 void			gdt_init(void)
 {
+	memcpy((void *)0x800, &gdt_entries, sizeof gdt_entries);
 	gdt_flush(&gdtp);
 }
